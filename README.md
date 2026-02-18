@@ -1,134 +1,123 @@
-# Agent Skills Builder + Actions API
+# Branding Knowledge Base
 
-Small production-style demo that converts `./docs` into AgentSkills-style folders and serves them through a ChatGPT Actions-compatible API.
+A curated knowledge base built with a branding professional and lecturer at Stockholm Business School — packaged so any AI can use it.
 
-## Project Layout
+Not a prompt collection. Structured skills built from the actual books, papers, and reports used in professional branding practice. Drop it into Claude, ChatGPT, or Codex and get a branding expert that cites real sources.
 
-```text
-/
-  app.py
-  builder.py
-  requirements.txt
-  openapi.yaml
-  README.md
-  docs/
-  skills/
-    <skill_id>/
-      SKILL.md
-      references/
-        INDEX.md
-        source/
-        normalized/
-      assets/
+---
+
+## Start here
+
+### I just want to use it
+
+Try it now: **Brand Strategy Architect on ChatGPT**  
+[Open the GPT](https://chatgpt.com/g/g-6995877f13348191bacead62ebefb677-brand-strategy-architect)
+
+### I want to self-host or extend it
+
+Use the developer path below:
+- Run locally
+- Deploy on Railway
+- Connect Actions with `openapi.yaml`
+- Add your own docs and regenerate skills
+
+---
+
+## Why this exists
+
+Most AI branding tools are wrappers around generic prompts. This one is grounded in academic and professional sources curated by someone who teaches and practices branding at a serious level. The skills architecture means the AI fetches what it needs rather than hallucinating from vague instructions.
+
+---
+
+## What is inside
+
+docs/          Source documents: books, papers, reports  
+skills/        Auto-generated skill folders with normalized references  
+app.py         FastAPI server, ChatGPT Actions compatible  
+builder.py     Converts docs into skill folders  
+openapi.yaml   Import this into Custom GPT Actions  
+
+---
+
+## Developer path
+
+### With Claude Projects
+
+1. Clone the repo
+2. Run `python builder.py` to generate skills from docs
+3. Upload the contents of `skills/` into your Claude Project knowledge base
+4. Paste the router instructions below into your Project system prompt
+
+### With Custom GPT
+
+1. Deploy the server (Railway section below)
+2. Open GPT Builder and go to Actions
+3. Import `openapi.yaml`
+4. Replace `https://YOUR_DOMAIN` with your Railway URL
+5. Paste the router instructions into your GPT system prompt
+
+### With Codex or any OpenAI-compatible agent
+
+GET  /skills  
+POST /get_skill       { "skill_id": "brand-positioning" }  
+POST /get_skill_file  { "skill_id": "brand-positioning", "path": "references/INDEX.md" }  
+POST /search_docs     { "skill_id": "brand-positioning", "query": "brand equity" }  
+
+---
+
+## Router instructions
+
+Paste into your AI system prompt:
 ```
-
-## Quickstart (Local)
-
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-python builder.py
-python -m uvicorn app:app --host 0.0.0.0 --port 8000
-```
-
-Optional OCR mode for scanned/image-only PDFs:
-
-```bash
-# requires local binaries: pdftoppm (poppler) + tesseract
-ENABLE_OCR=1 OCR_MAX_PAGES=6 OCR_TIMEOUT_SEC=120 python builder.py
-```
-
-Local health check:
-
-```bash
-curl -s http://localhost:8000/health
-```
-
-## Railway Deploy
-
-Use this start command:
-
-```bash
-python -m uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}
-```
-
-Recommended deploy flow:
-1. Push this repo to GitHub.
-2. Create a Railway service from the repo.
-3. Confirm build installs `requirements.txt`.
-4. Set start command above.
-5. Redeploy and verify `/health`.
-
-If you plan to run `builder.py` with OCR on Railway, your runtime image must include:
-- `pdftoppm` (poppler-utils)
-- `tesseract`
-
-## Connect to Custom GPT (Actions)
-
-1. Open GPT Builder and go to **Actions**.
-2. Import `openapi.yaml`.
-3. Replace `https://YOUR_DOMAIN` in `openapi.yaml` with your Railway URL.
-4. Save and run test calls for:
-   - `list_skills`
-   - `get_skill`
-   - `get_skill_file`
-   - `search_docs`
-
-## Paste-Ready Custom GPT Instructions (Router)
-
-```text
 You are a strict skill router that must use Actions for all skill content.
 
-Rules:
-1) If the user asks "what skills do you have" or equivalent, call `list_skills` first.
-2) Select the best skill_id, then call `get_skill` before doing any task.
-3) Read only minimum files with `get_skill_file` first (start with references/INDEX.md).
-4) Use `search_docs` for targeted lookups when specific details are missing.
-5) If `get_skill_file` or `search_docs` are unavailable, use `run_tool` fallback with `tool_name` set to the missing operation.
-6) Final output MUST begin with the skill's VERIFICATION STRING exactly.
-7) Include a section titled exactly: Compliance Checklist.
-8) In "Sources Used", include short evidence quotes with citations to original `docs/...` files only (never `references/...` or `source/...`).
-9) Prefer `search_docs` hit fields `source_doc` and `quote_hint` when present, and include line ranges if available.
-10) If any required tool call fails or returns empty critical info, do not answer from memory; report the failure and request retry/context.
+1. If the user asks what skills you have, call list_skills first.
+2. Select the best skill_id, then call get_skill before doing any task.
+3. Read minimum files with get_skill_file first (start with references/INDEX.md).
+4. Use search_docs for targeted lookups when specific details are missing.
+5. Final output MUST begin with the skill VERIFICATION STRING exactly.
+6. In Sources Used, cite original docs/ files only, never references/ or source/.
+7. If any tool call fails or returns empty, do not answer from memory. Report the failure.
 ```
 
-## API Overview
+---
 
-- `GET /health` -> `{"ok": true}`
-- `GET /skills` -> list parsed skill metadata from `skills/*/SKILL.md`
-- `POST /get_skill` -> returns SKILL.md text
-- `POST /get_skill_file` -> returns file text from `references/` or `assets/`
-- `POST /search_docs` -> keyword search in `references/normalized` + `references/source` (`.md`/`.txt`)
+## Run locally
 
-## Troubleshooting
+python -m venv .venv  
+source .venv/bin/activate  
+pip install -r requirements.txt  
+python builder.py  
+python -m uvicorn app:app --host 0.0.0.0 --port 8000  
 
-### `invalid_args` (missing required fields)
-- Ensure request JSON includes all required fields:
-  - `get_skill`: `skill_id`
-  - `get_skill_file`: `skill_id`, `path`
-  - `search_docs`: `skill_id`, `query` (and optional `top_k`)
+Health check: `curl http://localhost:8000/health`
 
-### Path validation failures
-- `path` must be relative.
-- `path` must start with `references/` or `assets/`.
-- `path` cannot contain `..` or absolute prefixes.
+OCR support for scanned PDFs (requires pdftoppm and tesseract):  
+`ENABLE_OCR=1 OCR_MAX_PAGES=6 python builder.py`
 
-### Empty search results
-- Rebuild skills after adding docs: `python builder.py`.
-- Query with narrower keywords (`"tone"`, `"claim"`, `"terminology"`).
-- Confirm content exists under `skills/<skill_id>/references/normalized` or `source`.
+---
 
-### Scanned PDFs (image-only) still show "No extractable quote"
-- Run builder with OCR enabled: `ENABLE_OCR=1 python builder.py`.
-- Ensure OCR binaries exist on the build machine:
-  - `pdftoppm` (from poppler-utils)
-  - `tesseract`
-- Tune OCR scope:
-  - `OCR_MAX_PAGES` (default `6`)
-  - `OCR_TIMEOUT_SEC` (default `120`)
+## Deploy on Railway
 
-### `run_tool` 404 or "requires approval"
-- Re-import the latest `openapi.yaml` in Custom GPT Actions so only current operations are used.
-- Confirm your actions list includes: `list_skills`, `get_skill`, `get_skill_file`, `search_docs`.
-- If a stale config still calls `run_tool`, the backend now returns a compatibility response instead of 404.
+1. Push repo to GitHub
+2. Create Railway service from the repo
+3. Start command: `python -m uvicorn app:app --host 0.0.0.0 --port ${PORT:-8000}`
+4. Verify at `/health`
+
+---
+
+## Add your own docs
+
+Drop PDFs, markdown, or text files into `docs/` and run `python builder.py`. The builder normalizes them into searchable skill references automatically.
+
+---
+
+## Contributing
+
+Pull requests welcome. If you have high quality branding resources — papers, case studies, frameworks — open a PR with the source added to `docs/`. Include a note on the source and why it belongs.
+
+---
+
+## Credits
+
+Built in collaboration with a branding & Marketing professional and lecturer at Stockholm Business School. The curation reflects what is actually taught and practiced in professional brand strategy — not what ranks well on Google.
