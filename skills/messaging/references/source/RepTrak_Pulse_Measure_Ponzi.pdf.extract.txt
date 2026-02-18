@@ -2,67 +2,7 @@
 
 Original doc: docs/RepTrak Pulse Measure Ponzi.pdf
 
-ntdeltalambdaepsilonCopyright (c) 1985, 1987, 1989, 1990, 1997 Adobe Systems Incorporated. All rights reserved.Symbol
-xA;DBAMDAwMDAwQDA4PEA8ODBMTFBQTExwbGxscHx8fHx8fHx8fHwEHBwcNDA0YEBAYGhURFRofHx8f&
-xA;1OT0ZXWFlaW1xdXl9WZ2hpamtsbW5vY3R1dnd4eXp7fH1+f3OEhYaHiImKi4yNjo+Ck5SVlpeYmZ&
-xA;qbnJ2en5KjpKWmp6ipqqusra6voRAAICAQIDBQUEBQYECAMDbQEAAhEDBCESMUEFURNhIgZxgZEy&
-xA;obHwFMHR4SNCFVJicvEzJDRDghaSUyWiY7LCB3PSNeJEgxdUkwgJChgZJjZFGidkdFU38qOzwygp&
-xA;0+PzhJSktMTU5PRldYWVpbXF1eX1RlZmdoaWprbG1ub2R1dnd4eXp7fH1+f3OEhYaHiImKi4yNjo&
-xA;AJkW17dX8mrXwhsrqS3l0P10ji5wXtxPb26LwLHmzQU4P8W3LYHihV6FgVi3m611pte8q3NhcXf1&
-xA;Vpb7SYtQhk12xgRpXmsQkgZPRSryqJWjZkUGqg7HpirEtQvPM+l6ci+TtKv9I0qV72XTbVLQzNLd&
-xA;En5zNo36Wf65b3UM9uk2nSWUMUJij0gXdy5aSD1FD3kJh58+I5lRvxoq9R8k3uq6j5btdU1Nm9fU&
-xA;kqXUinKuKs8xV2KuxV2KuxV2KuxV2KuxV2KuxV2KuxV2KuxV2KuxVJr3yfoFzZTWkVrHZJcXdvf3&
-xA;1JrbUGnMazxNEio6C2qyfFueu1SoZqAFAAFANgB0pirsVYYPJ3lrXtf1m71awju7mw1ClpM1Q8fq&
-xA;8OtWhpZSyWlxHcxCQuHNsWeEclk+GmyyE4qzIEEVG4OKuxV2KuxV2KuxV2KuxV2KuxV2KuxV2Kux&
-xA;VSzEnZI1H0YqjsVdiq2SOOWNo5FDxuCrowBUqRQgg9QcVY6fL2paKTL5YkUWo3fQrlmFtTwtZAGa&
-xA;o3GKpziqXaN5i0XWvrv6Luluv0ddSWN7xDD07iGnOM8gK0r1G2Kq2l6tp+q2f1ywl9a29WaD1OLL&
-xA;YsVTvFXEgCp2A6nFXmnlD8ytDs7K8GsXtxHavdSzaLcXXq3Ms+n8OQuS6I1EZoppeypGK7Kh4lXp&
-xA;YIIqNwehwK7FXYq7FVK7tLW8tpLW7hS4tplKSwSqHR1PUMrVBGKpB+i9d0L4tEc6lpo66NdSfvUH&
-xA;9mUYqj8VdiqC1TQ9F1eOKPVdPttQjgcSwpdQxzKkgFA6iQNRvcYqhZ9J1x55Hi1yWGNmLJELe3YI&
-xA;5ikeH1IvSMVohS8HKU+owYP6cg2rEporBUTZfnd5una7M+iw2bRRVltpuHqWX7yGP6xdBblpjDxm&
-xA;9CxV2KvLNW0D8ydQ8wvc+WdejsdKh1oHVNPeIVdFWFmfmpSR1I2aMOlR3rhVmwfzzC1DDpl8v83q&
-xA;pY5QoYenOWtr23eLuVbY7VxVPYfOvlCRhGNZtEmPSGaZIpegP93IUbv4YqnEM8M8YkhkWWNvsuhD&
-xA;6zGKR3c6AJCDuVtod0iFe+7+LHFU+xV2KuxV2Kpfqug6VqgU3cNZ4q+hdxkx3ERPeKZCsifQcVSv&
-xA;lrZQrbT27GWTkeRrPOCsaKZH6fCre2FU90PRYNJsvQV2nuJWM17eSf3k87Ac5X+dKAdFWijYDArx&
-xA;nuoBF+5Pp+soDKFYU25YqgtT1f8AOTRV1G20VNVu5l1XVZ1knsvWSWMTobaONxbSgxyRMWAUovUK&
-xA;0BdSrdNzShxQkujq2g6qugMSdLuVaXRGY19LhvLZ1PZAecX+RyXomKsjxV2KuxV2KuxVATaBoU0r&
-xA;qGh6hHNpr6pI6W6wzD6ppUnpySufVXia0Ujpy6EjfFUzuvze0CLUH02DT9SvtRQoVs7SGOWV43tI&
-xA;rxpEX1BVY47hAw+1yNFDYqmnkvzhP5jn11JNOlsU0jUGsYnlK1lVYo5AxSvJGpJUqw6Ed+QVVkuK&
-xA;pF51X09Bl1Jf77R3TUo26EC2POUDp9uD1Iz7Niqe4q7FXYq7FXYqkUXme5nMxtNDv7qCKaa39dGs&
-xA;9GEBk5yIsgiblGJo0ZY5gjbr6itTFUNJ+V3kOS5url9KQy3jiWYiWYAOJ0uaxqH4xcpoldvTA5Ef&
-xA;OoOKsg0jy3ouj3F7PptsLZ9RkWW7VXcozogjVhGWKJ8CgHiBWm+KpliqSed2A8m64P2pLG4jQeLy&
-xA;RMiL9LMBiqN07XNK1G4u7eynE0tjIYrpQrDi4ZkIqwAajRstVqKgjqMVR2KpZqPmXRNO1PT9Lu7t&
-xA;mVGhkmhUHnHG7MKHbbFVEfmz5DKcjfypuVRXsr1Gd1lSBo41aENJIksio6ICykgEDFUWfzG8nBbJ&
-xA;zfMEvyFgc29zxDGVoAkx9OkDmZGjCy8TyBXriqHtfzW8hXIdo9TKqlq9+Wlt7mEG1jT1DMpkiTkp&
-xA;WVhaS3l9cRWlpCOU1xO6xxovizsQoHzxVj97oGi+Z5Ytd0rWZ7dprc2j6hpM0DrcWvIt6TOyTpRW&
-xA;VZDX6uNgltdN2A6RytsR8LHlQuqycEEVG4OKuxV2KuxV2KuxVJta8wfVZhpumxi+12ZeUNmDRY1J&
-xA;zadFp959ZitknSeQR3ErFwgYcP3rSAA8tyBXwxVNPIVjbaf5cFjaqVtrW91GGFWZnYJHfzqoLOWZ&
-xA;th1Jriql580jUdQtdKuLG2+vNpWpQ382nckQ3McaSIY1MpWPkrSCRebAVXqMVYdqmifmBc3WoXll&
-xA;pdxpgv0aTSLawvY7f6pfluP1vVFScRXAZVQskYlWgpxJPLCqBvPIf5g3t1pZvXvbmBtQa61RG1Bu&
-xA;H5qTXdw1kNQ5m9uHvbhNQH1a5sWnLWsVnaLd2bwvFFxEjevAdm3l5AhV6T5St9atvLWmwa5L6+rR&
-xA;wIt5KaVLgftEFwWp1PI1Pc4oTbFXnUn5Y+TfM+u3ur6vZetqWn6ryt7gO1OMSxSCN4yTG6FuoZcK&
-xA;s8stM06xThZWsNqnTjDGsY+5QMConFXYq7FXYq7FXYq7FUj1PzTpCTTaZBG+sahQpLptmgmYctuM&
-xA;pULxWUPD1W9SeVmaSWVzsXllcs8je7E4qjcVdirsVdirsVdirFtF1q20y2ubO8tr9Z1v7+T93YXs&
-xA;irsVdirsVdirsVdirsVdirsVdirsVdirsVdirsVdirsVcSAKnYDqcVeYeXPzQ0TStC1e91q6uvqF&
-xA;oxVP4444o1jjUJGgoiKAAAOgAGKrsVdirsVdirsVdirsVdirsVdirsVdirsVdirsVY7YXHmvUo57&
-xA;WfT7oW4mt42hR1a2huAeDyTEEevx+12xVNcVQup6tpml231nUbmO1gqFDysFqx6KoO7Meyjc4qxX&
-xA;zBZv530xtMOhQvpEpLLfa1EwoSpQS29oClwHCu1GdoWHbFU2svJumxyQ3GovJq13b0Nu93xMUJAo&
-xA;PQtkCQRUGwKpyp1Y4qn2KuxV2KuxV2KuxV2KuxV2KuxV2KuxV2KpB5Z83W2vX2rW0EaKulz+iJEm&
-xA;ZPrFnDeLeTrHJHpltdGYWluyw09Os8hdpCX47AtsuKs0n83+U4JpIJ9bsIp4mKSxPdQq6upoyspa&
-xA;rxvfzsrKfAg4qyDFWJWP5kabdaumnvp97awzXt5pttqMwtvq8tzYGT1lURzyTKKQOQzxqKDFUFDa&
-xA;sF5LFIF9WO0uIC0EqyyIrlBcK5YbVk6YqgdYtfyRjSaG7vrWjSfo+9trfUZqk393JIY7qOGcVT6x&
-xA;2lapbm50y8gvrYM0ZmtpUmQOv2l5IWFR3GKorFWI2PlXyvqXmTX9R1HR7G91CHUIRDeXFtDLMgSw&
-xA;tGQLI6lhxY1FDscVZdirsVdirsVdirsVdirsVdirsVdirsVdirsVdirsVdirsVdirsVdiqC1XRdI&
-neVr"ljHCjX5ckA01+nW':4JGXE
-fbo00qGcjLeu,D5+o3SVNdl4'QKCh
-NpUn+&ALA4jk3(YXV9L&k,s
-PrAN:hbbm'CMf2M8m4811PN
-J4.XEgI'VlnJrTQi4J1JuH"PmCIPSo
-Nature Publishing Group
-Palgrave Macmillan, a division of Macmillan Publishers Ltd
 RepTrak&amp;trade; Pulse: Conceptualizing and Validating a Short-Form Measure of Corporate Reputation
-uuid:bff667bb-a3be-4779-8f34-181147cbb7c2
-LGEHFC+Helvetica-Bold
 Corporate Reputation Review
 © 2011 Macmillan Publishers Ltd.,
 Corporate reputations are of growing interest
@@ -71,7 +11,6 @@ competitive advantage in the marketplace. This
 that untangles the drivers of corporate reputa-
 validity of this measure of reputation. Quan-
 titative studies with multiple samples of par-
-Pulse, an emotion-based
 measure of the corporate reputation construct
 tion from measurement of the construct itself.
 The authors draw on signaling theory to con-
@@ -106,19 +45,80 @@ rms with sustainable com-
 most important strategic
 ). Recent research reveals that
 favorable reputations encourage website
-Pulse:)41( Conceptualizing and )
-V)58(alidating a Shor)-20.9(t-Form Measure of )
 Copyright (c) 1998 Hewlett-Packard Company
-IEC http://www.iec.ch
 IEC 61966-2.1 Default RGB colour space - sRGB
 Reference Viewing Condition in IEC61966-2.1
-Copyright (c) 1990 Adobe Systems Incorporated. All Rights Reserved.Bembo is a trademark of the Monotype Corporation Plc.Bembo-Italic
-Copyright (c) 1990 Adobe Systems Incorporated. All Rights Reserved.Bembo is a trademark of The Monotype Corporation Plc.Bembo
-LGEHFA+Helvetica-Light
-Copyright (c) 1990 Adobe Systems Incorporated. All Rights Reserved.Bembo is a trademark of the Monotype Corporation Plc.Bembo-Bold
-LGEHHF+Helvetica-BoldOblique
 enable exploitation of information asym-
 reputations are known to signal information
 While corporate reputation
 known and lauded, its measurement remains
 elusive. This paper describes the develop-
+ment of the RepTrak
+emotion-based measure of corporate reputa-
+tion. Building on signaling theory and the
+conceptualize corporate reputation as beliefs
+about companies and disentangle the drivers
+ationalizations of the construct
+construct has been obscured with measure-
+ment of its drivers, and antecedents have
+been regularly used to measure the construct
+itself. This process has confounded our
+are formed and has made interpretation of
+both academic and practitioner research dif-
+attributes are consistently and similarly
+understood and evaluated by observers cross-
+tate recurrent and cross-national measure-
+ment of corporate reputations using standard
+polling methods. Various scholars have iden-
+) and have encouraged
+constructs. Research that incorporates meas-
+urement of corporate reputation suffers from
+many of the challenges these authors identi-
+reputation measures rely on 10 to 20
+attributes to identify perceptions of corpo-
+rate performance domains, such as perceived
+While these attributes capture corporate repu-
+tation domains that are of interest (
+Diamantopoulos and Winklhofer,
+), questions often appear redundant to
+respondents, thereby leading to observed
+demand effects and can lead to second-
+guessing about the researchers
+When corporate reputation is not the
+focal construct but rather a moderating var-
+iable examined with other primary con-
+space. In numerous polls and surveys, con-
+structs such as trust, favorability and credibil-
+ity are often used interchangeably with the
+reputation construct. But closer examination
+shows inconsistent wording hinders com-
+Moreover, cross-cultural scholars recently
+have suggested that reliance on short-form,
+etic (universal) scales could enhance data
+collection, data analysis and cross-national
+comparisons for academics, MNC managers
+and policymakers alike (
+Craig and Douglas,
+Finally, market research increasingly is
+being conducted via internet and intranet
+surveys. Best practice in formatting online
+instrument design, speci
+page formatting, in ways that enhance res-
+pondent participation and instrument effec-
+methodological and practitioner concerns
+by reducing fatigue, demand effects, redun-
+dancy and non-responsiveness; allowing
+sion of other constructs in the same
+questionnaire; providing pollsters and
+researchers with a rigorous and analytically
+grounded measure of corporate reputation
+past and future activity that
+uence how customers and other key
+stakeholders view and behave towards them
+resource-based view (RBV) of the
+of reputation from the construct itself. Our
+literature review and analysis of prior oper-
+suggest that the de
+understanding of how corporate reputations
+cult. Doing so also presumes that driver-
+In addition, we recognize a growing need

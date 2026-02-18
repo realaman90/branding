@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import os
 import re
 import shutil
+import subprocess
+import tempfile
 import zlib
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -193,6 +196,63 @@ SKILL_META = {
     },
 }
 
+ENABLE_OCR = os.environ.get("ENABLE_OCR", "0").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+try:
+    OCR_MAX_PAGES = max(1, int(os.environ.get("OCR_MAX_PAGES", "6")))
+except ValueError:
+    OCR_MAX_PAGES = 6
+try:
+    OCR_TIMEOUT_SEC = max(20, int(os.environ.get("OCR_TIMEOUT_SEC", "120")))
+except ValueError:
+    OCR_TIMEOUT_SEC = 120
+OCR_TOOLING_AVAILABLE = bool(shutil.which("pdftoppm") and shutil.which("tesseract"))
+
+PDF_METADATA_TERMS = {
+    "acrobat",
+    "adobe",
+    "basefont",
+    "cidsysteminfo",
+    "creator(",
+    "flatedecode",
+    "fontbbox",
+    "fontname",
+    "ghostscript",
+    "illustrator",
+    "linearized",
+    "metadata",
+    "pdfdocencoding",
+    "pdf producer",
+    "procset",
+    "producer(",
+    "publishing group",
+    "rdf:",
+    "rights reserved",
+    "structparents",
+    "title(",
+    "uuid:",
+    "viewerpreferences",
+    "xmp.",
+    "xobject",
+    "xmlns:",
+}
+
+PDF_BOILERPLATE_PATTERNS = [
+    r"all rights reserved",
+    r"springer science\+business media",
+    r"nature publishing group",
+    r"palgrave macmillan",
+    r"microsoft corporation",
+    r"copyright.*(adobe|microsoft|urw|nimbus|opentype)",
+    r"www\.pdftk\.com",
+    r"xmp media management schema",
+    r"itext group",
+]
+
 
 @dataclass
 class DocRecord:
@@ -201,6 +261,10 @@ class DocRecord:
     extension: str
     text: str
     categories: set[str] = field(default_factory=set)
+    ocr_enabled: bool = False
+    ocr_available: bool = False
+    ocr_attempted: bool = False
+    ocr_used: bool = False
 
 
 def ensure_input_output_dirs() -> None:
@@ -291,6 +355,9 @@ def sanitize_line(raw: str) -> str:
 
 
 def is_likely_pdf_metadata(line: str) -> bool:
+    lower = line.lower()
+    if any(term in lower for term in PDF_METADATA_TERMS):
+        return True
     return bool(
         re.search(
             r"(author\(|creator\(|flatedecode|pdfdocencoding|xobject|procset|structparents|viewerpreferences|linearized|type\s*/|metadata|fontname|basefont|baseencoding|registry\(|supplement|ordering\(|xmp core|rdf:description|rdf:|xmlns:|adobe:ns:meta|x:xmptk|ascent|capheight|fontbbox|descent|charset|cidsysteminfo|acrobat distiller|mailto:)",
@@ -300,17 +367,39 @@ def is_likely_pdf_metadata(line: str) -> bool:
     )
 
 
+def has_pdf_operator_noise(line: str) -> bool:
+    return bool(
+        re.search(
+            r"(\)\s*-?\d+\s*\(|[A-Za-z]+\)\d+\(|\bBT\b|\bET\b|\bTf\b|\bTm\b|\bTd\b|\bTJ\b|\bTj\b)",
+            line,
+        )
+    )
+
+
+def is_pdf_boilerplate(line: str) -> bool:
+    lower = line.lower()
+    return any(re.search(pattern, lower) for pattern in PDF_BOILERPLATE_PATTERNS)
+
+
 def is_meaningful_line(raw: str) -> bool:
     line = sanitize_line(raw)
     if len(line) < 18:
         return False
+    if has_pdf_operator_noise(line):
+        return False
     if re.fullmatch(r"[0-9A-Fa-f]{12,}", line):
+        return False
+    if re.fullmatch(r"[A-Za-z0-9+/=;&_-]{24,}", line):
+        return False
+    if re.search(r"[A-Za-z0-9]{16,}[&=:/][A-Za-z0-9]{8,}", line):
         return False
     if "/" in line and "http" not in line.lower():
         return False
     if line.count("/") >= 3:
         return False
     if is_likely_pdf_metadata(line):
+        return False
+    if is_pdf_boilerplate(line):
         return False
     if re.search(
         r"(flatedecode|pdfdocencoding|xobject|procset|structparents|viewerpreferences|linearized|type/catalog|metadata\s+\d)",
@@ -338,6 +427,16 @@ def is_meaningful_line(raw: str) -> bool:
     if allowed_chars / max(1, len(line)) < 0.85:
         return False
     if len(re.findall(r"[A-Za-z]{3,}", line)) < 3:
+        return False
+    words = re.findall(r"\b[A-Za-z][A-Za-z'-]{2,}\b", line)
+    if len(words) < 3:
+        return False
+    if any(len(word) > 28 for word in words):
+        return False
+    if line.count(" ") < 2:
+        return False
+    punct = sum(1 for ch in line if ch in "()[]{}<>|\\~`_^")
+    if punct > max(4, len(line) // 10):
         return False
     return True
 
@@ -402,6 +501,79 @@ def extract_pdf_text_best_effort(path: Path) -> str:
     return "\n".join(cleaned[:120])[:12000]
 
 
+def should_try_ocr(text: str) -> bool:
+    lines = candidate_lines(text)
+    if len(lines) < 3:
+        return True
+    if len("\n".join(lines)) < 500:
+        return True
+    return False
+
+
+def merge_extracted_text(primary: str, secondary: str) -> str:
+    merged = unique_keep_order(candidate_lines(primary) + candidate_lines(secondary))
+    return "\n".join(merged[:180])[:18000]
+
+
+def extract_pdf_text_with_ocr(path: Path) -> str:
+    if not OCR_TOOLING_AVAILABLE:
+        return ""
+
+    with tempfile.TemporaryDirectory(prefix="skills-ocr-") as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        image_prefix = tmp_path / "page"
+        convert_cmd = [
+            "pdftoppm",
+            "-f",
+            "1",
+            "-l",
+            str(OCR_MAX_PAGES),
+            "-r",
+            "200",
+            "-png",
+            str(path),
+            str(image_prefix),
+        ]
+        try:
+            subprocess.run(
+                convert_cmd,
+                check=True,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=OCR_TIMEOUT_SEC,
+            )
+        except (subprocess.SubprocessError, FileNotFoundError, subprocess.TimeoutExpired):
+            return ""
+
+        images = sorted(tmp_path.glob("page-*.png"))
+        if not images:
+            return ""
+
+        text_chunks: list[str] = []
+        per_image_timeout = max(10, OCR_TIMEOUT_SEC // max(1, len(images)))
+        for image in images[:OCR_MAX_PAGES]:
+            try:
+                result = subprocess.run(
+                    ["tesseract", str(image), "stdout", "--psm", "6"],
+                    check=False,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.DEVNULL,
+                    timeout=per_image_timeout,
+                )
+            except (subprocess.SubprocessError, FileNotFoundError, subprocess.TimeoutExpired):
+                continue
+            if result.returncode != 0:
+                continue
+            text = result.stdout.decode("utf-8", errors="ignore")
+            if text.strip():
+                text_chunks.append(text)
+
+        if not text_chunks:
+            return ""
+        lines = candidate_lines("\n".join(text_chunks))
+        return "\n".join(unique_keep_order(lines)[:160])[:16000]
+
+
 def classify_doc(rel_path: Path, text: str) -> set[str]:
     haystack = f"{rel_path.as_posix()}\n{text[:5000]}".lower()
     categories: set[str] = set()
@@ -420,10 +592,23 @@ def discover_docs() -> list[DocRecord]:
         if extension not in ALLOWED_DOC_EXTENSIONS:
             continue
 
+        ocr_attempted = False
+        ocr_used = False
+        ocr_enabled = False
+        ocr_available = False
+
         if extension in {".md", ".txt"}:
             text = read_text_file(path)
         else:
             text = extract_pdf_text_best_effort(path)
+            ocr_enabled = ENABLE_OCR
+            ocr_available = OCR_TOOLING_AVAILABLE
+            if ENABLE_OCR and should_try_ocr(text):
+                ocr_attempted = True
+                ocr_text = extract_pdf_text_with_ocr(path)
+                if ocr_text.strip():
+                    text = merge_extracted_text(text, ocr_text)
+                    ocr_used = True
 
         rel_path = path.relative_to(DOCS_DIR)
         categories = classify_doc(rel_path, text)
@@ -434,6 +619,10 @@ def discover_docs() -> list[DocRecord]:
                 extension=extension,
                 text=text,
                 categories=categories,
+                ocr_enabled=ocr_enabled,
+                ocr_available=ocr_available,
+                ocr_attempted=ocr_attempted,
+                ocr_used=ocr_used,
             )
         )
 
@@ -614,10 +803,7 @@ def collect_evidence(
             selected = ["Document present; extractable text was limited."]
 
         for line in selected:
-            source_name = source_map.get(rel_key, safe_source_name(doc.rel_path))
-            evidence.append(
-                f'- "{line}" (from: docs/{rel_key}; source: source/{source_name})'
-            )
+            evidence.append(f'- "{line}" (from: docs/{rel_key})')
             if len(evidence) >= limit:
                 return unique_keep_order(evidence)
 
@@ -788,6 +974,18 @@ def infer_topic_from_filename(rel_path: Path) -> str:
     return " ".join(words).strip()
 
 
+def describe_pdf_ocr_status(doc: DocRecord) -> str:
+    if not doc.ocr_enabled:
+        return "OCR disabled for this build."
+    if not doc.ocr_available:
+        return "OCR requested but required binaries were not found (pdftoppm + tesseract)."
+    if doc.ocr_used:
+        return "OCR applied and merged with extractable PDF text."
+    if doc.ocr_attempted:
+        return "OCR attempted but produced no usable text."
+    return "OCR available but not needed; extractable text was sufficient."
+
+
 def render_pdf_summaries_md(docs: list[DocRecord], source_map: dict[str, str]) -> str:
     pdf_docs = [doc for doc in docs if doc.extension == ".pdf"]
     lines = ["# PDF_SUMMARIES", ""]
@@ -795,9 +993,18 @@ def render_pdf_summaries_md(docs: list[DocRecord], source_map: dict[str, str]) -
         lines.append("Not specified in docs.")
         return "\n".join(lines)
 
-    lines.append(
-        "Best-effort summaries from PDF filenames and extractable text only (no OCR)."
-    )
+    if ENABLE_OCR and OCR_TOOLING_AVAILABLE:
+        lines.append(
+            "Best-effort summaries from PDF filenames and extractable text, with OCR fallback enabled."
+        )
+    elif ENABLE_OCR and not OCR_TOOLING_AVAILABLE:
+        lines.append(
+            "Best-effort summaries from PDF filenames and extractable text. OCR requested but unavailable."
+        )
+    else:
+        lines.append(
+            "Best-effort summaries from PDF filenames and extractable text. OCR is disabled."
+        )
     lines.append("")
 
     for doc in pdf_docs:
@@ -812,8 +1019,9 @@ def render_pdf_summaries_md(docs: list[DocRecord], source_map: dict[str, str]) -
             [
                 f"## {source_name}",
                 f"- Original doc: docs/{rel_key}",
-                f"- Inferred topic: {inferred_topic} (from: docs/{rel_key}; source: source/{source_name})",
-                f'- Extractable text excerpt: "{excerpt}" (from: docs/{rel_key}; source: source/{source_name})',
+                f"- OCR status: {describe_pdf_ocr_status(doc)}",
+                f"- Inferred topic: {inferred_topic} (from: docs/{rel_key})",
+                f'- Extractable text excerpt: "{excerpt}" (from: docs/{rel_key})',
                 "",
             ]
         )
@@ -826,6 +1034,7 @@ def render_source_quotes_md(docs: list[DocRecord], source_map: dict[str, str]) -
         "# SOURCE_QUOTES",
         "",
         "Short quote bank from source docs for citations in final answers.",
+        "Use `docs/...` citations in final output. Do not cite `references/...` or `source/...`.",
         "",
     ]
     if not docs:
@@ -840,9 +1049,7 @@ def render_source_quotes_md(docs: list[DocRecord], source_map: dict[str, str]) -
         extracted = candidate_lines(doc.text)
         if extracted:
             for quote in extracted[:3]:
-                lines.append(
-                    f'- "{quote}" (from: docs/{rel_key}; source: source/{source_name})'
-                )
+                lines.append(f'- "{quote}" (from: docs/{rel_key})')
         else:
             lines.append(f"- No extractable quote. (from: docs/{rel_key})")
         lines.append("")
@@ -860,6 +1067,7 @@ def render_index_md(
         "# INDEX",
         "",
         f"- skill_id: {skill_id}",
+        "- note: This file is for navigation. Do not cite INDEX.md as evidence in final answers.",
         "",
         "## Source Files",
     ]
@@ -920,7 +1128,7 @@ outputs_schema:
   "sources_used": [
     {{
       "quote": "string",
-      "citation": "docs/<original-file> (preferred) or source/<copied-file>",
+      "citation": "docs/<original-file>",
       "lines": "start-end (optional)"
     }}
   ]
@@ -943,9 +1151,10 @@ steps:
 5. If source PDFs are relevant, read `references/normalized/PDF_SUMMARIES.md` before drafting.
 6. If a needed detail is missing, call `search_docs` (or `run_tool` fallback) with focused keywords and use only returned hits.
 7. For each important claim, include evidence with this format in `Sources Used`: `"<short quote>" (from: docs/<original-file>, lines: <start-end if known>)`.
-8. If quote text is unavailable (for scanned/opaque PDFs), cite file path and state "No extractable quote."
-9. Produce the answer and include a section titled exactly `Compliance Checklist`.
-10. Final answer MUST start with the verification string exactly.
+8. Never cite internal skill paths in final output (`references/...` or `source/...` are forbidden in `Sources Used`).
+9. If quote text is unavailable (for scanned/opaque PDFs), cite the original doc path and state: `"No extractable quote (PDF/image-only; OCR unavailable or insufficient)."`
+10. Produce the answer and include a section titled exactly `Compliance Checklist`.
+11. Final answer MUST start with the verification string exactly.
 
 Compliance Checklist:
 - Voice and tone are validated against loaded voice references.
@@ -955,7 +1164,7 @@ Compliance Checklist:
 - Legal and compliance constraints are validated against loaded constraint references.
 - Any missing rule is explicitly marked as "Not specified in docs."
 - Sources include short evidence quotes with citations, not only bare file paths.
-- Prefer citations using original document names from `docs/...` and quote bank in `references/normalized/SOURCE_QUOTES.md`.
+- Sources Used cites original `docs/...` files only, never internal `references/...` or `source/...` paths.
 
 VERIFICATION STRING: {verification}
 Final answer must start with: {verification}
@@ -1014,10 +1223,27 @@ def compute_gaps(docs: list[DocRecord]) -> list[str]:
     for doc in docs:
         if not doc.categories:
             gaps.append(f"Could not confidently categorize: docs/{doc.rel_path.as_posix()}.")
-        if doc.extension == ".pdf" and not doc.text.strip():
-            gaps.append(
-                f"Limited extractable text in PDF (no OCR used): docs/{doc.rel_path.as_posix()}."
-            )
+        if doc.extension == ".pdf" and len(candidate_lines(doc.text)) < 2:
+            if doc.ocr_enabled and not doc.ocr_available:
+                gaps.append(
+                    "Limited extractable text in PDF; OCR requested but unavailable "
+                    f"(needs pdftoppm+tesseract): docs/{doc.rel_path.as_posix()}."
+                )
+            elif doc.ocr_enabled and doc.ocr_attempted and not doc.ocr_used:
+                gaps.append(
+                    "Limited extractable text in PDF after OCR attempt: "
+                    f"docs/{doc.rel_path.as_posix()}."
+                )
+            elif doc.ocr_enabled:
+                gaps.append(
+                    "Limited extractable text in PDF with OCR enabled: "
+                    f"docs/{doc.rel_path.as_posix()}."
+                )
+            else:
+                gaps.append(
+                    "Limited extractable text in PDF (OCR disabled): "
+                    f"docs/{doc.rel_path.as_posix()}."
+                )
     return gaps
 
 
@@ -1027,6 +1253,13 @@ def print_build_summary(
 ) -> None:
     print("Build summary")
     print("=============")
+    if ENABLE_OCR:
+        if OCR_TOOLING_AVAILABLE:
+            print(f"ocr mode: enabled (max_pages={OCR_MAX_PAGES}, timeout={OCR_TIMEOUT_SEC}s)")
+        else:
+            print("ocr mode: requested but unavailable (missing pdftoppm or tesseract)")
+    else:
+        print("ocr mode: disabled")
     print("skills created:")
     for skill_id in skills_to_docs:
         print(f"- {skill_id}")

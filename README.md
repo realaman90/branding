@@ -32,6 +32,13 @@ python builder.py
 python -m uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
+Optional OCR mode for scanned/image-only PDFs:
+
+```bash
+# requires local binaries: pdftoppm (poppler) + tesseract
+ENABLE_OCR=1 OCR_MAX_PAGES=6 OCR_TIMEOUT_SEC=120 python builder.py
+```
+
 Local health check:
 
 ```bash
@@ -52,6 +59,10 @@ Recommended deploy flow:
 3. Confirm build installs `requirements.txt`.
 4. Set start command above.
 5. Redeploy and verify `/health`.
+
+If you plan to run `builder.py` with OCR on Railway, your runtime image must include:
+- `pdftoppm` (poppler-utils)
+- `tesseract`
 
 ## Connect to Custom GPT (Actions)
 
@@ -77,8 +88,9 @@ Rules:
 5) If `get_skill_file` or `search_docs` are unavailable, use `run_tool` fallback with `tool_name` set to the missing operation.
 6) Final output MUST begin with the skill's VERIFICATION STRING exactly.
 7) Include a section titled exactly: Compliance Checklist.
-8) In "Sources Used", include short evidence quotes with citations (and line ranges if available), not only bare file paths.
-9) If any required tool call fails or returns empty critical info, do not answer from memory; report the failure and request retry/context.
+8) In "Sources Used", include short evidence quotes with citations to original `docs/...` files only (never `references/...` or `source/...`).
+9) Prefer `search_docs` hit fields `source_doc` and `quote_hint` when present, and include line ranges if available.
+10) If any required tool call fails or returns empty critical info, do not answer from memory; report the failure and request retry/context.
 ```
 
 ## API Overview
@@ -106,6 +118,15 @@ Rules:
 - Rebuild skills after adding docs: `python builder.py`.
 - Query with narrower keywords (`"tone"`, `"claim"`, `"terminology"`).
 - Confirm content exists under `skills/<skill_id>/references/normalized` or `source`.
+
+### Scanned PDFs (image-only) still show "No extractable quote"
+- Run builder with OCR enabled: `ENABLE_OCR=1 python builder.py`.
+- Ensure OCR binaries exist on the build machine:
+  - `pdftoppm` (from poppler-utils)
+  - `tesseract`
+- Tune OCR scope:
+  - `OCR_MAX_PAGES` (default `6`)
+  - `OCR_TIMEOUT_SEC` (default `120`)
 
 ### `run_tool` 404 or "requires approval"
 - Re-import the latest `openapi.yaml` in Custom GPT Actions so only current operations are used.

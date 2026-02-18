@@ -5,7 +5,6 @@ Original doc: docs/romaniuk-et-al-2007-evidence-concerning-the-importance-of-per
 Evidence concerning the importance of perceived brand differentiation
 Jenni Romaniuk; Byron Sharp; Andrew Ehrenberg
 Brand differentiation; Distinctiveness; Consumer perceptions; Perceived differentiation
-uuid:facada7b-aead-11dc-873f-000a95a62ed2
 Australasian Marketing Journal
 Australian and New Zealand Marketing Academy
 Collins (2002) criticises these techniques for missing the
@@ -57,7 +56,6 @@ ferentiated than their
 brands within a mark
 le (small) asymmetries betw
 brands. Brands are mainl
-el (Òthis one is here no
 y sizeÓ) rather than at brand le
 ferent from the othersÓ). Shar
 ocate location and infor
@@ -122,3 +120,5 @@ noted that within these e
 the brands compete as if there is little dif
 vidence does not suppor
 t the traditional role of
+ferentiation in the mark
+eting literature; neither does it

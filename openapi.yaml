@@ -279,6 +279,13 @@ components:
           type: integer
         end_line:
           type: integer
+        source_doc:
+          type: string
+          description: Original docs path inferred from snippet or extracted source text.
+          example: docs/Sharp, Dawes & Victory 2024.pdf
+        quote_hint:
+          type: string
+          description: Extracted quote candidate aligned to source_doc when available.
 
     SearchDocsResponse:
       type: object

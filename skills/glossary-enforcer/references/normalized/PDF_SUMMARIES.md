@@ -1,8 +1,9 @@
 # PDF_SUMMARIES
 
-Best-effort summaries from PDF filenames and extractable text only (no OCR).
+Best-effort summaries from PDF filenames and extractable text. OCR is disabled.
 
 ## Ward.pdf
 - Original doc: docs/Ward.pdf
-- Inferred topic: Ward (from: docs/Ward.pdf; source: source/Ward.pdf)
-- Extractable text excerpt: "Adobe Illustrator CS6 (Windows)" (from: docs/Ward.pdf; source: source/Ward.pdf)
+- OCR status: OCR disabled for this build.
+- Inferred topic: Ward (from: docs/Ward.pdf)
+- Extractable text excerpt: "Public XMP Toolkit Core 4.0"" (from: docs/Ward.pdf)

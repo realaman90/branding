@@ -25,7 +25,7 @@ outputs_schema:
   "sources_used": [
     {
       "quote": "string",
-      "citation": "docs/<original-file> (preferred) or source/<copied-file>",
+      "citation": "docs/<original-file>",
       "lines": "start-end (optional)"
     }
   ]
@@ -48,9 +48,10 @@ steps:
 5. If source PDFs are relevant, read `references/normalized/PDF_SUMMARIES.md` before drafting.
 6. If a needed detail is missing, call `search_docs` (or `run_tool` fallback) with focused keywords and use only returned hits.
 7. For each important claim, include evidence with this format in `Sources Used`: `"<short quote>" (from: docs/<original-file>, lines: <start-end if known>)`.
-8. If quote text is unavailable (for scanned/opaque PDFs), cite file path and state "No extractable quote."
-9. Produce the answer and include a section titled exactly `Compliance Checklist`.
-10. Final answer MUST start with the verification string exactly.
+8. Never cite internal skill paths in final output (`references/...` or `source/...` are forbidden in `Sources Used`).
+9. If quote text is unavailable (for scanned/opaque PDFs), cite the original doc path and state: `"No extractable quote (PDF/image-only; OCR unavailable or insufficient)."`
+10. Produce the answer and include a section titled exactly `Compliance Checklist`.
+11. Final answer MUST start with the verification string exactly.
 
 Compliance Checklist:
 - Voice and tone are validated against loaded voice references.
@@ -60,7 +61,7 @@ Compliance Checklist:
 - Legal and compliance constraints are validated against loaded constraint references.
 - Any missing rule is explicitly marked as "Not specified in docs."
 - Sources include short evidence quotes with citations, not only bare file paths.
-- Prefer citations using original document names from `docs/...` and quote bank in `references/normalized/SOURCE_QUOTES.md`.
+- Sources Used cites original `docs/...` files only, never internal `references/...` or `source/...` paths.
 
 VERIFICATION STRING: VERIFIED_SKILL:glossary-enforcer:v1
 Final answer must start with: VERIFIED_SKILL:glossary-enforcer:v1
