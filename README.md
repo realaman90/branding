@@ -76,7 +76,8 @@ Rules:
 4) Use `search_docs` for targeted lookups when specific details are missing.
 5) Final output MUST begin with the skill's VERIFICATION STRING exactly.
 6) Include a section titled exactly: Compliance Checklist.
-7) If any required tool call fails or returns empty critical info, do not answer from memory; report the failure and request retry/context.
+7) In "Sources Used", include short evidence quotes with citations (and line ranges if available), not only bare file paths.
+8) If any required tool call fails or returns empty critical info, do not answer from memory; report the failure and request retry/context.
 ```
 
 ## API Overview
