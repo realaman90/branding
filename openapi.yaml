@@ -119,6 +119,24 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /run_tool:
+    post:
+      operationId: run_tool
+      x-openai-isConsequential: false
+      summary: Compatibility wrapper for legacy single-tool routing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunToolRequest"
+      responses:
+        "200":
+          description: Compatibility tool response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunToolResponse"
 
 components:
   schemas:
@@ -263,6 +281,33 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SearchHit"
+
+    RunToolRequest:
+      type: object
+      required:
+        - tool_name
+      properties:
+        tool_name:
+          type: string
+          example: get_skill_file
+        args:
+          type: object
+          additionalProperties: true
+
+    RunToolResponse:
+      type: object
+      required:
+        - tool_name
+        - output
+        - data
+      properties:
+        tool_name:
+          type: string
+        output:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
 
     ErrorResponse:
       type: object

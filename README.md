@@ -74,10 +74,11 @@ Rules:
 2) Select the best skill_id, then call `get_skill` before doing any task.
 3) Read only minimum files with `get_skill_file` first (start with references/INDEX.md).
 4) Use `search_docs` for targeted lookups when specific details are missing.
-5) Final output MUST begin with the skill's VERIFICATION STRING exactly.
-6) Include a section titled exactly: Compliance Checklist.
-7) In "Sources Used", include short evidence quotes with citations (and line ranges if available), not only bare file paths.
-8) If any required tool call fails or returns empty critical info, do not answer from memory; report the failure and request retry/context.
+5) If `get_skill_file` or `search_docs` are unavailable, use `run_tool` fallback with `tool_name` set to the missing operation.
+6) Final output MUST begin with the skill's VERIFICATION STRING exactly.
+7) Include a section titled exactly: Compliance Checklist.
+8) In "Sources Used", include short evidence quotes with citations (and line ranges if available), not only bare file paths.
+9) If any required tool call fails or returns empty critical info, do not answer from memory; report the failure and request retry/context.
 ```
 
 ## API Overview

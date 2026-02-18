@@ -311,7 +311,7 @@ async def search_docs(payload: SearchDocsRequest):
     return {"hits": hits[: payload.top_k]}
 
 
-@app.post("/run_tool", operation_id="run_tool_compat")
+@app.post("/run_tool", operation_id="run_tool")
 async def run_tool_compat(payload: RunToolCompatRequest):
     tool_name = payload.tool_name.strip()
     args = payload.args or {}
