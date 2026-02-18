@@ -148,12 +148,12 @@ def resolve_skill_dir(skill_id: str) -> Path:
     return SKILLS_DIR / skill_id
 
 
-@app.get("/health")
+@app.get("/health", operation_id="health")
 async def health() -> dict[str, bool]:
     return {"ok": True}
 
 
-@app.get("/skills")
+@app.get("/skills", operation_id="list_skills")
 async def list_skills() -> dict[str, list[dict[str, Any]]]:
     skills: list[dict[str, Any]] = []
     if not SKILLS_DIR.exists():
@@ -183,7 +183,7 @@ async def list_skills() -> dict[str, list[dict[str, Any]]]:
     return {"skills": skills}
 
 
-@app.post("/get_skill")
+@app.post("/get_skill", operation_id="get_skill")
 async def get_skill(payload: GetSkillRequest):
     if not validate_skill_id(payload.skill_id):
         return bad_request("invalid_skill_id")
@@ -198,7 +198,7 @@ async def get_skill(payload: GetSkillRequest):
     }
 
 
-@app.post("/get_skill_file")
+@app.post("/get_skill_file", operation_id="get_skill_file")
 async def get_skill_file(payload: GetSkillFileRequest):
     if not validate_skill_id(payload.skill_id):
         return bad_request("invalid_skill_id")
@@ -225,7 +225,7 @@ async def get_skill_file(payload: GetSkillFileRequest):
     }
 
 
-@app.post("/search_docs")
+@app.post("/search_docs", operation_id="search_docs")
 async def search_docs(payload: SearchDocsRequest):
     if not validate_skill_id(payload.skill_id):
         return bad_request("invalid_skill_id")
