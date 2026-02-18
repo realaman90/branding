@@ -1,0 +1,169 @@
+openapi: 3.0.3
+info:
+  title: Skills + Tools Demo API
+  version: "1.0.0"
+servers:
+  - url: https://YOUR_DOMAIN
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Health check
+      responses:
+        "200":
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthResponse"
+  /skills:
+    get:
+      operationId: list_skills
+      summary: List available local skills
+      responses:
+        "200":
+          description: Skills list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListSkillsResponse"
+  /get_skill:
+    post:
+      operationId: get_skill
+      summary: Get full markdown for one skill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetSkillRequest"
+      responses:
+        "200":
+          description: Skill markdown loaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GetSkillResponse"
+        "400":
+          description: Invalid skill_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Skill not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /run_tool:
+    post:
+      operationId: run_tool
+      summary: Run a supported demo tool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunToolRequest"
+      responses:
+        "200":
+          description: Tool executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunToolResponse"
+        "400":
+          description: Invalid args or unknown tool
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+          example: true
+
+    SkillInfo:
+      type: object
+      required: [skill_id, description, required_tools]
+      properties:
+        skill_id:
+          type: string
+          example: calc
+        description:
+          type: string
+          example: Deterministic arithmetic evaluator for one expression.
+        required_tools:
+          type: array
+          items:
+            type: string
+          example: [calculator]
+
+    ListSkillsResponse:
+      type: object
+      required: [skills]
+      properties:
+        skills:
+          type: array
+          items:
+            $ref: "#/components/schemas/SkillInfo"
+
+    GetSkillRequest:
+      type: object
+      required: [skill_id]
+      properties:
+        skill_id:
+          type: string
+          pattern: "^[a-z0-9-]+$"
+          example: calc
+
+    GetSkillResponse:
+      type: object
+      required: [skill_id, content, source]
+      properties:
+        skill_id:
+          type: string
+        content:
+          type: string
+        source:
+          type: string
+          example: local
+
+    RunToolRequest:
+      type: object
+      required: [tool_name, args]
+      properties:
+        tool_name:
+          type: string
+          enum: [calculator, now, fetch_url, save_note, list_notes]
+        args:
+          type: object
+          additionalProperties: true
+
+    RunToolResponse:
+      type: object
+      required: [tool_name, output, data]
+      properties:
+        tool_name:
+          type: string
+        output:
+          type: string
+        data:
+          type: object
+          additionalProperties: true
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
