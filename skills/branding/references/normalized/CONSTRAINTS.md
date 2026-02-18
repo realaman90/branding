@@ -1,10 +1,10 @@
 # CONSTRAINTS
 
 ## Legal and Compliance Constraints
-Not specified in docs.
+- 5744e9d7207fe1dd65b2eca38e174825 (from: source/Romaniuk_Sharp_Salience.pdf)
 
 ## Prohibited Claims
-Not specified in docs.
+- 5744e9d7207fe1dd65b2eca38e174825 (from: source/Romaniuk_Sharp_Salience.pdf)
 
 ## Required Disclaimers
-Not specified in docs.
+- 5744e9d7207fe1dd65b2eca38e174825 (from: source/Romaniuk_Sharp_Salience.pdf)
